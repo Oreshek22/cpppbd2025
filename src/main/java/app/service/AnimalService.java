@@ -27,4 +27,9 @@ public class AnimalService {
         log.info("AnimalService.findById({})", id);
         return dao.findById(id);
     }
+    @Deprecated
+    public void deprecatedPing() {
+        log.info("deprecatedPing()");
+    }
+
 }

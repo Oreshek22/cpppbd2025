@@ -1,5 +1,6 @@
 package app.shell;
 
+import app.model.Animal;
 import app.service.AnimalService;
 import app.service.MessageService;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,35 @@ public class ConsoleShell {
             String line = sc.nextLine().trim();
             if (line.isEmpty()) continue;
 
+            if (line.equals("help")) {
+                System.out.println("""
+                        Commands:
+                        find-all
+                        find <id>
+                        lang en|ru
+                        deprecated
+                        exit
+                        """);
+                continue;
+            }
+
             if (line.equals("exit")) {
                 System.out.println(i18n.msg("app.exit"));
                 return;
             }
 
+            if (line.equals("deprecated")) {
+                animals.deprecatedPing();
+                System.out.println("OK");
+                continue;
+            }
+
             if (line.startsWith("lang ")) {
-                String lang = line.substring(5).trim();
+                String lang = line.substring(5).trim().toLowerCase();
+                if (!lang.equals("ru") && !lang.equals("en")) {
+                    System.out.println(i18n.msg("app.unknown"));
+                    continue;
+                }
                 i18n.setLang(lang);
                 System.out.println(i18n.msg("lang.current", i18n.getLang()));
                 continue;
@@ -46,15 +69,17 @@ public class ConsoleShell {
             if (line.startsWith("find ")) {
                 String arg = line.substring(5).trim();
                 int id;
-                try { id = Integer.parseInt(arg); }
-                catch (Exception e) {
+                try {
+                    id = Integer.parseInt(arg);
+                } catch (Exception e) {
                     System.out.println(i18n.msg("app.unknown"));
                     continue;
                 }
 
                 var opt = animals.findById(id);
-                if (opt.isEmpty()) System.out.println(i18n.msg("animal.notfound"));
-                else {
+                if (opt.isEmpty()) {
+                    System.out.println(i18n.msg("animal.notfound"));
+                } else {
                     System.out.println(i18n.msg("animal.one"));
                     System.out.println(format(opt.get()));
                 }
@@ -65,7 +90,7 @@ public class ConsoleShell {
         }
     }
 
-    private String format(app.model.Animal a) {
+    private String format(Animal a) {
         return i18n.msg("animal.id") + ": " + a.id() + ", " +
                 i18n.msg("animal.gender") + ": " + a.gender() + ", " +
                 i18n.msg("animal.price") + ": " + a.price();
