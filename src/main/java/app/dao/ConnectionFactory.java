@@ -1,0 +1,30 @@
+package app.dao;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+@Component
+public class ConnectionFactory {
+
+    private final String url;
+    private final String user;
+    private final String password;
+
+    public ConnectionFactory(
+            @Value("${db.url}") String url,
+            @Value("${db.user}") String user,
+            @Value("${db.password}") String password
+    ) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+    }
+
+    public Connection open() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
+    }
+}
