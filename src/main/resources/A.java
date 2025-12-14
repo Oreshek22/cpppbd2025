@@ -1,11 +1,15 @@
-app.prompt=> 
+app.prompt=>
 app.unknown=Неизвестная команда.
 app.exit=Выход.
-lang.current=Текущий язык: {0}
 
+
+        lang.current=Текущий язык: {0}
 animals.header=Животные:
 animal.one=Животное:
 animal.notfound=Животное не найдено.
-animal.id=ID
+        animal.id=ID
 animal.gender=Пол
 animal.price=Цена
+
+gender.gender_1=мужской
+gender.gender_2=женский
