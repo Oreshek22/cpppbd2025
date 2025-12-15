@@ -46,12 +46,42 @@ public class ZooCommands {
 
 
     private String format(Animal a) {
-        String gender = i18n.msg("gender." + a.gender());
+        String gender = i18n.msg("gender." + a.gender()); // <-- переводим
 
         return i18n.msg("animal.id") + ": " + a.id() + ", " +
+                i18n.msg("animal.typeId") + ": " + a.typeId() + ", " +
                 i18n.msg("animal.gender") + ": " + gender + ", " +
+                i18n.msg("animal.dob") + ": " + a.dateOfBirth() + ", " +
                 i18n.msg("animal.price") + ": " + a.price();
     }
+
+
+
+    @ShellMethod(key = "add", value = "Add: add --typeId 1 --gender male --dob 2020-01-01 --price 1000")
+    public String add(@ShellOption Integer typeId,
+                      @ShellOption String gender,
+                      @ShellOption String dob,
+                      @ShellOption double price) {
+        var ok = animals.add(typeId, gender, java.time.LocalDate.parse(dob), price);
+        return ok ? "OK" : "FAIL";
+    }
+
+    @ShellMethod(key = "edit", value = "Edit: edit --id 1 --typeId 1 --gender female --dob 2020-01-01 --price 2000")
+    public String edit(@ShellOption int id,
+                       @ShellOption Integer typeId,
+                       @ShellOption String gender,
+                       @ShellOption String dob,
+                       @ShellOption double price) {
+        var ok = animals.edit(id, typeId, gender, java.time.LocalDate.parse(dob), price);
+        return ok ? "OK" : "NOT FOUND";
+    }
+
+    @ShellMethod(key = "delete", value = "Delete: delete --id 1")
+    public String delete(@ShellOption int id) {
+        var ok = animals.delete(id);
+        return ok ? "OK" : "NOT FOUND";
+    }
+
 
 
 }

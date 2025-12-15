@@ -6,6 +6,6 @@ public record Animal(
         int id,
         Integer typeId,
         String gender,
-        LocalDate dateOfBirth,
+        java.time.LocalDate dateOfBirth,
         double price
 ) {}
