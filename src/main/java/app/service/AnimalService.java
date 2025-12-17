@@ -1,9 +1,8 @@
 package app.service;
 
-import app.dao.AnimalDao;
 import app.model.Animal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import app.model.AnimalEntity;
+import app.repository.AnimalRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,36 +11,66 @@ import java.util.Optional;
 
 @Service
 public class AnimalService {
-    private static final Logger log = LoggerFactory.getLogger(AnimalService.class);
 
-    private final AnimalDao dao;
+    private final AnimalRepository repo;
 
-    public AnimalService(AnimalDao dao) {
-        this.dao = dao;
+    public AnimalService(AnimalRepository repo) {
+        this.repo = repo;
     }
 
     public List<Animal> findAll() {
-        log.info("AnimalService.findAll()");
-        return dao.findAll();
+        return repo.findAll().stream()
+                .map(this::toDto)
+                .toList();
     }
 
     public Optional<Animal> findById(int id) {
-        log.info("AnimalService.findById({})", id);
-        return dao.findById(id);
+        return repo.findById(id).map(this::toDto);
     }
 
     public boolean add(Integer typeId, String gender, LocalDate dob, double price) {
-        log.info("AnimalService.add()");
-        return dao.insert(new Animal(0, typeId, gender, dob, price)) == 1;
+        AnimalEntity e = new AnimalEntity();
+        e.setTypeId(typeId);
+        e.setGender(gender);
+        e.setDateOfBirth(dob);
+        e.setPrice(price);
+
+        // В БД эти колонки есть. Если у тебя для них есть логика — позже добавим команды.
+        // Пока оставим null, если БД позволяет.
+        // e.setFeedingId(...);
+        // e.setDateOfInspection(...);
+
+        repo.save(e);
+        return true;
     }
 
     public boolean edit(int id, Integer typeId, String gender, LocalDate dob, double price) {
-        log.info("AnimalService.edit({})", id);
-        return dao.update(new Animal(id, typeId, gender, dob, price)) == 1;
+        Optional<AnimalEntity> opt = repo.findById(id);
+        if (opt.isEmpty()) return false;
+
+        AnimalEntity e = opt.get();
+        e.setTypeId(typeId);
+        e.setGender(gender);
+        e.setDateOfBirth(dob);
+        e.setPrice(price);
+
+        repo.save(e);
+        return true;
     }
 
     public boolean delete(int id) {
-        log.info("AnimalService.delete({})", id);
-        return dao.deleteById(id) == 1;
+        if (!repo.existsById(id)) return false;
+        repo.deleteById(id);
+        return true;
+    }
+
+    private Animal toDto(AnimalEntity e) {
+        return new Animal(
+                e.getId() == null ? 0 : e.getId(),
+                e.getTypeId(),
+                e.getGender(),
+                e.getDateOfBirth(),
+                e.getPrice() == null ? 0.0 : e.getPrice()
+        );
     }
 }
